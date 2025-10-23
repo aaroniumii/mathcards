@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: math-backend
+    ports:
+      - "2522:2521"
+    networks:
+      - mathnet
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: math-frontend
+    ports:
+      - "2521:2521"
+    depends_on:
+      - backend
+    networks:
+      - mathnet
+
+networks:
+  mathnet:
+    driver: bridge
+
