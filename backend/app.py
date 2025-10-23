@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from utils import generate_operations
@@ -44,7 +44,7 @@ def next_operation(session_id: str):
     """Devuelve la siguiente operación de la sesión."""
     session = sessions.get(session_id)
     if not session:
-        return {"error": "Sesión no encontrada"}
+        raise HTTPException(status_code=404, detail="Sesión no encontrada")
     idx = session["index"]
     if idx >= len(session["operations"]):
         return {"finished": True, "results": session["results"]}
@@ -60,7 +60,7 @@ def submit_answer(session_id: str, data: dict):
     """Registra si el niño respondió correctamente o no."""
     session = sessions.get(session_id)
     if not session:
-        return {"error": "Sesión no encontrada"}
+        raise HTTPException(status_code=404, detail="Sesión no encontrada")
 
     correct = data.get("correct", False)
     session["results"].append(correct)
@@ -68,7 +68,12 @@ def submit_answer(session_id: str, data: dict):
 
     if session["index"] >= len(session["operations"]):
         return {"finished": True, "results": session["results"]}
-    else:
-        op = session["operations"][session["index"]]
-        return {"finished": False, "operation": op}
+
+    op = session["operations"][session["index"]]
+    return {
+        "finished": False,
+        "operation": op,
+        "index": session["index"] + 1,
+        "total": len(session["operations"])
+    }
 
