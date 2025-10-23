@@ -9,19 +9,21 @@ export default function OperationCard({
   helperMessage,
   isLoading,
   results,
+  translations,
 }) {
   const progress = total ? Math.min(100, Math.round((index / total) * 100)) : 0;
   const earnedStars = results.filter(Boolean).length;
+  const t = translations?.operationCard;
 
   return (
     <div className="w-full max-w-xl rounded-[2.5rem] bg-white/90 p-8 shadow-2xl shadow-rose-200 backdrop-blur">
       <div className="flex items-center justify-between gap-3 rounded-3xl bg-sky-50 px-5 py-3 text-sky-700">
         <span className="text-sm font-semibold uppercase tracking-wide">
-          Reto {index} de {total}
+          {t?.challengeLabel ? t.challengeLabel(index, total) : `${index} / ${total}`}
         </span>
         <div className="flex items-center gap-2 text-sm font-semibold">
           <span role="img" aria-hidden>⭐</span>
-          {earnedStars} estrellas
+          {t?.starsEarned ? t.starsEarned(earnedStars) : earnedStars}
         </div>
       </div>
 
@@ -30,7 +32,7 @@ export default function OperationCard({
           {operation.a} {operation.operator} {operation.b}
         </span>
         <div className="rounded-full bg-sky-100 px-5 py-2 text-lg font-semibold text-sky-700">
-          ¿Lo resolviste bien?
+          {t?.question}
         </div>
         {helperMessage && (
           <p className="max-w-sm text-base text-sky-600">{helperMessage}</p>
@@ -44,7 +46,7 @@ export default function OperationCard({
         />
       </div>
       <p className="mt-2 text-sm font-semibold text-sky-600">
-        Progreso: {progress}%
+        {t?.progressLabel ? t.progressLabel(progress) : `${progress}%`}
       </p>
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
@@ -57,7 +59,7 @@ export default function OperationCard({
           <span role="img" aria-hidden className="mr-2">
             🎉
           </span>
-          ¡Lo hice bien!
+          {t?.correctButton}
         </button>
         <button
           type="button"
@@ -68,7 +70,7 @@ export default function OperationCard({
           <span role="img" aria-hidden className="mr-2">
             🤔
           </span>
-          Necesito practicar
+          {t?.incorrectButton}
         </button>
       </div>
     </div>
