@@ -3,6 +3,18 @@ export const DEFAULT_LANGUAGE = "es";
 
 export const translations = {
   es: {
+    common: {
+      formatDuration: (seconds) => {
+        if (typeof seconds !== "number" || seconds < 0) return "-";
+        const totalSeconds = Math.round(seconds);
+        const minutes = Math.floor(totalSeconds / 60);
+        const remainingSeconds = totalSeconds % 60;
+        if (minutes <= 0) {
+          return `${remainingSeconds} s`;
+        }
+        return `${minutes} min ${remainingSeconds.toString().padStart(2, "0")} s`;
+      },
+    },
     languageName: "Español",
     languageLabel: "Idioma",
     languageNames: {
@@ -50,6 +62,19 @@ export const translations = {
       startButton: "¡Empezar ahora!",
       loadingButton: "Preparando retos...",
       languageHelper: "Puedes cambiar el idioma en cualquier momento.",
+      statsPreviewTitle: "Tus estadísticas",
+      statsPreviewEmpty:
+        "Aquí verás tus resultados una vez que completes tu primera sesión.",
+      statsPreviewSessions: (count) => `${count} sesiones guardadas`,
+      statsPreviewAverageScore: (score) => `Promedio de puntaje: ${score}%`,
+      statsPreviewBestScore: (score) => `Mejor puntaje: ${score}%`,
+      statsPreviewAverageDuration: (value) =>
+        value ? `Tiempo promedio: ${value}` : "",
+      statsPreviewLastScore: (score) => `Último puntaje: ${score}%`,
+      statsPreviewLastDuration: (value) =>
+        value ? `Último tiempo: ${value}` : "",
+      statsPreviewLastUpdated: (value) =>
+        value ? `Última sesión: ${value}` : "",
     },
     operationCard: {
       challengeLabel: (index, total) => `Reto ${index} de ${total}`,
@@ -79,6 +104,7 @@ export const translations = {
         correct: "Correctas",
         wrong: "Por mejorar",
         score: "Tu puntaje",
+        duration: "Tiempo empleado",
       },
       encouragement: {
         top: "¡Eres una estrella de las matemáticas!",
@@ -91,6 +117,12 @@ export const translations = {
       totalSessions: (count) => `${count} sesiones`,
       bestScore: (score) => `Mejor puntaje: ${score}%`,
       averageScore: (score) => `Promedio: ${score}%`,
+      averageDuration: (value) =>
+        value != null ? `Tiempo promedio: ${value}` : "",
+      bestDuration: (value) =>
+        value != null ? `Mejor tiempo: ${value}` : "",
+      lastDuration: (value) =>
+        value != null ? `Último tiempo: ${value}` : "",
       lastUpdated: (value) => (value ? `Última sesión: ${value}` : ""),
       download: "Descargar estadísticas",
       upload: "Cargar estadísticas",
@@ -99,6 +131,18 @@ export const translations = {
     },
   },
   en: {
+    common: {
+      formatDuration: (seconds) => {
+        if (typeof seconds !== "number" || seconds < 0) return "-";
+        const totalSeconds = Math.round(seconds);
+        const minutes = Math.floor(totalSeconds / 60);
+        const remainingSeconds = totalSeconds % 60;
+        if (minutes <= 0) {
+          return `${remainingSeconds} s`;
+        }
+        return `${minutes} min ${remainingSeconds.toString().padStart(2, "0")} s`;
+      },
+    },
     languageName: "English",
     languageLabel: "Language",
     languageNames: {
@@ -146,6 +190,19 @@ export const translations = {
       startButton: "Start now!",
       loadingButton: "Preparing challenges...",
       languageHelper: "You can change the language at any time.",
+      statsPreviewTitle: "Your statistics",
+      statsPreviewEmpty:
+        "Your results will appear here after you finish your first session.",
+      statsPreviewSessions: (count) => `${count} saved sessions`,
+      statsPreviewAverageScore: (score) => `Average score: ${score}%`,
+      statsPreviewBestScore: (score) => `Best score: ${score}%`,
+      statsPreviewAverageDuration: (value) =>
+        value ? `Average time: ${value}` : "",
+      statsPreviewLastScore: (score) => `Last score: ${score}%`,
+      statsPreviewLastDuration: (value) =>
+        value ? `Last time: ${value}` : "",
+      statsPreviewLastUpdated: (value) =>
+        value ? `Last session: ${value}` : "",
     },
     operationCard: {
       challengeLabel: (index, total) => `Challenge ${index} of ${total}`,
@@ -175,6 +232,7 @@ export const translations = {
         correct: "Correct",
         wrong: "Needs work",
         score: "Your score",
+        duration: "Time spent",
       },
       encouragement: {
         top: "You're a math superstar!",
@@ -187,6 +245,12 @@ export const translations = {
       totalSessions: (count) => `${count} sessions`,
       bestScore: (score) => `Best score: ${score}%`,
       averageScore: (score) => `Average score: ${score}%`,
+      averageDuration: (value) =>
+        value != null ? `Average time: ${value}` : "",
+      bestDuration: (value) =>
+        value != null ? `Best time: ${value}` : "",
+      lastDuration: (value) =>
+        value != null ? `Last time: ${value}` : "",
       lastUpdated: (value) => (value ? `Last session: ${value}` : ""),
       download: "Download stats",
       upload: "Load stats",
@@ -195,6 +259,18 @@ export const translations = {
     },
   },
   ja: {
+    common: {
+      formatDuration: (seconds) => {
+        if (typeof seconds !== "number" || seconds < 0) return "-";
+        const totalSeconds = Math.round(seconds);
+        const minutes = Math.floor(totalSeconds / 60);
+        const remainingSeconds = totalSeconds % 60;
+        if (minutes <= 0) {
+          return `${remainingSeconds} 秒`;
+        }
+        return `${minutes} 分 ${remainingSeconds.toString().padStart(2, "0")} 秒`;
+      },
+    },
     languageName: "日本語",
     languageLabel: "言語",
     languageNames: {
@@ -242,6 +318,18 @@ export const translations = {
       startButton: "今すぐスタート",
       loadingButton: "チャレンジを準備中…",
       languageHelper: "言語はいつでも変更できます。",
+      statsPreviewTitle: "統計情報",
+      statsPreviewEmpty: "最初のセッションを終えると結果がここに表示されます。",
+      statsPreviewSessions: (count) => `保存済みセッション: ${count}`,
+      statsPreviewAverageScore: (score) => `平均スコア: ${score}%`,
+      statsPreviewBestScore: (score) => `最高スコア: ${score}%`,
+      statsPreviewAverageDuration: (value) =>
+        value ? `平均時間: ${value}` : "",
+      statsPreviewLastScore: (score) => `前回のスコア: ${score}%`,
+      statsPreviewLastDuration: (value) =>
+        value ? `今回の時間: ${value}` : "",
+      statsPreviewLastUpdated: (value) =>
+        value ? `前回のセッション: ${value}` : "",
     },
     operationCard: {
       challengeLabel: (index, total) => `チャレンジ ${index} / ${total}`,
@@ -271,6 +359,7 @@ export const translations = {
         correct: "正解",
         wrong: "要復習",
         score: "スコア",
+        duration: "かかった時間",
       },
       encouragement: {
         top: "君は算数のスターだよ！",
@@ -283,6 +372,12 @@ export const translations = {
       totalSessions: (count) => `セッション数: ${count}`,
       bestScore: (score) => `最高スコア: ${score}%`,
       averageScore: (score) => `平均スコア: ${score}%`,
+      averageDuration: (value) =>
+        value != null ? `平均時間: ${value}` : "",
+      bestDuration: (value) =>
+        value != null ? `最短時間: ${value}` : "",
+      lastDuration: (value) =>
+        value != null ? `今回の時間: ${value}` : "",
       lastUpdated: (value) => (value ? `最新セッション: ${value}` : ""),
       download: "統計をダウンロード",
       upload: "統計を読み込む",
