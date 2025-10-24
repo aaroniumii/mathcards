@@ -1,8 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from utils import generate_operations
 import random
+
+
+class AnswerPayload(BaseModel):
+    answer: int
 
 app = FastAPI(title="Math Practice API")
 
@@ -47,33 +51,75 @@ def next_operation(session_id: str):
         raise HTTPException(status_code=404, detail="Sesión no encontrada")
     idx = session["index"]
     if idx >= len(session["operations"]):
-        return {"finished": True, "results": session["results"]}
+        last = session["results"][-1] if session["results"] else None
+        return {
+            "finished": True,
+            "results": session["results"],
+            "total": len(session["operations"]),
+            "last_result": last,
+        }
+    current = session["operations"][idx]
+    operation = {key: current[key] for key in ("a", "b", "operator")}
     return {
         "finished": False,
-        "operation": session["operations"][idx],
+        "operation": operation,
         "index": idx + 1,
-        "total": len(session["operations"])
+        "total": len(session["operations"]),
+        "results": session["results"],
     }
 
 @app.post("/api/answer/{session_id}")
 def submit_answer(session_id: str, data: dict):
-    """Registra si el niño respondió correctamente o no."""
+    """Verifica la respuesta enviada por el niño y registra el resultado."""
     session = sessions.get(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Sesión no encontrada")
 
-    correct = data.get("correct", False)
-    session["results"].append(correct)
+    try:
+        payload = AnswerPayload(**data)
+    except ValidationError:
+        raise HTTPException(status_code=400, detail="Respuesta inválida")
+
+    idx = session["index"]
+    if idx >= len(session["operations"]):
+        last = session["results"][-1] if session["results"] else None
+        return {
+            "finished": True,
+            "results": session["results"],
+            "total": len(session["operations"]),
+            "last_result": last,
+        }
+
+    current = session["operations"][idx]
+    expected = current.get("result")
+    is_correct = payload.answer == expected
+
+    session["results"].append(
+        {
+            "correct": is_correct,
+            "answer": payload.answer,
+            "expected": expected,
+            "operation": {key: current[key] for key in ("a", "b", "operator")},
+        }
+    )
     session["index"] += 1
 
     if session["index"] >= len(session["operations"]):
-        return {"finished": True, "results": session["results"]}
+        return {
+            "finished": True,
+            "results": session["results"],
+            "total": len(session["operations"]),
+            "last_result": session["results"][-1],
+        }
 
-    op = session["operations"][session["index"]]
+    next_operation = session["operations"][session["index"]]
+    operation = {key: next_operation[key] for key in ("a", "b", "operator")}
     return {
         "finished": False,
-        "operation": op,
+        "operation": operation,
         "index": session["index"] + 1,
-        "total": len(session["operations"])
+        "total": len(session["operations"]),
+        "results": session["results"],
+        "last_result": session["results"][-1],
     }
 

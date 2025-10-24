@@ -13,7 +13,10 @@ export default function SessionSummary({
   language,
 }) {
   const total = results.length;
-  const correct = results.filter(Boolean).length;
+  const correct = results.reduce(
+    (count, value) => (value?.correct || value === true ? count + 1 : count),
+    0
+  );
   const wrong = Math.max(0, total - correct);
   const percentage = total ? Math.round((correct / total) * 100) : 0;
   const summaryT = translations?.sessionSummary;

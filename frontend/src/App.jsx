@@ -24,6 +24,7 @@ export default function App() {
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [lastResult, setLastResult] = useState(null);
   const [language, setLanguage] = useState(() => {
     if (typeof window === "undefined") return DEFAULT_LANGUAGE;
     return localStorage.getItem(LANGUAGE_KEY) || DEFAULT_LANGUAGE;
@@ -71,7 +72,9 @@ export default function App() {
 
   const recordSession = (sessionResults, totalOperations) => {
     if (!sessionResults?.length || !settings) return;
-    const correctCount = sessionResults.filter(Boolean).length;
+    const correctCount = sessionResults.filter((result) =>
+      typeof result === "boolean" ? result : Boolean(result?.correct)
+    ).length;
     const entry = {
       id: sessionId,
       timestamp: new Date().toISOString(),
@@ -105,6 +108,7 @@ export default function App() {
       setResults([]);
       setFinished(false);
       setIndex(0);
+      setLastResult(null);
       await getNext(res.data.session_id);
     } catch (err) {
       setError(t.errors.startSession);
@@ -119,9 +123,16 @@ export default function App() {
       setIsLoading(true);
       setError(null);
       const res = await axios.get(`/api/next/${id}`);
+      if (Array.isArray(res.data.results)) {
+        setResults(res.data.results);
+      }
+      if (res.data.last_result) {
+        setLastResult(res.data.last_result);
+      } else {
+        setLastResult(null);
+      }
       if (res.data.finished) {
         setFinished(true);
-        setResults(res.data.results);
         recordSession(res.data.results, res.data.total);
       } else {
         setOperation(res.data.operation);
@@ -137,14 +148,21 @@ export default function App() {
     }
   };
 
-  const submit = async (correct) => {
+  const submit = async (answer) => {
     if (!sessionId) return;
     try {
       setIsLoading(true);
-      const res = await axios.post(`/api/answer/${sessionId}`, { correct });
+      const res = await axios.post(`/api/answer/${sessionId}`, { answer });
+      if (Array.isArray(res.data.results)) {
+        setResults(res.data.results);
+      }
+      if (res.data.last_result) {
+        setLastResult(res.data.last_result);
+      } else {
+        setLastResult(null);
+      }
       if (res.data.finished) {
         setFinished(true);
-        setResults(res.data.results);
         recordSession(res.data.results, res.data.total);
       } else {
         setOperation(res.data.operation);
@@ -166,6 +184,7 @@ export default function App() {
     setResults([]);
     setIndex(0);
     setError(null);
+    setLastResult(null);
   };
 
   const handleDownloadStats = () => {
@@ -282,11 +301,11 @@ export default function App() {
             operation={operation}
             index={index}
             total={total}
-            onCorrect={() => submit(true)}
-            onIncorrect={() => submit(false)}
+            onSubmit={submit}
             helperMessage={helperMessage}
             isLoading={isLoading}
             results={results}
+            lastResult={lastResult}
             translations={t}
           />
         )}
