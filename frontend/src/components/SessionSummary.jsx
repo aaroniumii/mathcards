@@ -1,4 +1,5 @@
 import React, { useMemo, useRef } from "react";
+import { calculateAggregateStats, formatDuration } from "../utils/stats";
 
 export default function SessionSummary({
   results,
@@ -7,6 +8,7 @@ export default function SessionSummary({
   translations,
   languageSelector,
   stats,
+  statsSummary,
   onDownloadStats,
   onUploadStats,
   statsErrorKey,
@@ -30,17 +32,31 @@ export default function SessionSummary({
   }, [encouragement, percentage]);
   const modeMessage = summaryT?.modeMessages?.[settings?.mode || "mix"];
   const sessions = Array.isArray(stats?.sessions) ? stats.sessions : [];
-  const totalSessions = sessions.length;
-  const bestScore = totalSessions
-    ? Math.max(...sessions.map((session) => session?.percentage ?? 0))
-    : 0;
-  const averageScore = totalSessions
-    ? Math.round(
-        sessions.reduce((sum, session) => sum + (session?.percentage ?? 0), 0) /
-          totalSessions
-      )
-    : 0;
-  const lastSession = sessions[totalSessions - 1];
+  const computedSummary = useMemo(() => {
+    if (statsSummary) return statsSummary;
+    const aggregate = calculateAggregateStats(sessions);
+    const formatter = translations?.common?.formatDuration;
+    return {
+      ...aggregate,
+      averageDurationFormatted:
+        aggregate.averageDurationSeconds != null
+          ? formatDuration(aggregate.averageDurationSeconds, formatter)
+          : null,
+      bestDurationFormatted:
+        aggregate.bestDurationSeconds != null
+          ? formatDuration(aggregate.bestDurationSeconds, formatter)
+          : null,
+      lastDurationFormatted:
+        aggregate.lastDurationSeconds != null
+          ? formatDuration(aggregate.lastDurationSeconds, formatter)
+          : null,
+    };
+  }, [sessions, statsSummary, translations?.common?.formatDuration]);
+
+  const totalSessions = computedSummary?.totalSessions ?? sessions.length;
+  const bestScore = computedSummary?.bestScore ?? 0;
+  const averageScore = computedSummary?.averageScore ?? 0;
+  const lastSession = computedSummary?.lastSession || sessions[totalSessions - 1];
   const formattedLastSession = useMemo(() => {
     if (!lastSession?.timestamp) return null;
     try {
@@ -83,7 +99,7 @@ export default function SessionSummary({
           <p className="mt-2 text-base text-emerald-700">{modeMessage}</p>
         )}
 
-        <div className="mt-8 grid gap-6 rounded-3xl bg-emerald-50 p-6 sm:grid-cols-3">
+        <div className="mt-8 grid gap-6 rounded-3xl bg-emerald-50 p-6 sm:grid-cols-2 md:grid-cols-4">
           <div className="rounded-2xl bg-white p-4 shadow">
             <p className="text-sm font-semibold uppercase tracking-wide text-emerald-600">
               {summaryT?.cards?.correct}
@@ -102,6 +118,16 @@ export default function SessionSummary({
             </p>
             <p className="mt-2 text-4xl font-black text-sky-600">{percentage}%</p>
           </div>
+          {summaryT?.cards?.duration && computedSummary?.lastDurationFormatted && (
+            <div className="rounded-2xl bg-white p-4 shadow">
+              <p className="text-sm font-semibold uppercase tracking-wide text-amber-500">
+                {summaryT.cards.duration}
+              </p>
+              <p className="mt-2 text-2xl font-black text-amber-600">
+                {computedSummary.lastDurationFormatted}
+              </p>
+            </div>
+          )}
         </div>
 
         {message && (
@@ -120,9 +146,24 @@ export default function SessionSummary({
             <div className="rounded-2xl bg-white/80 p-4 text-sm font-semibold text-emerald-700 shadow">
               {summaryT?.averageScore ? summaryT.averageScore(averageScore) : averageScore}
             </div>
+            {summaryT?.averageDuration && computedSummary?.averageDurationFormatted && (
+              <div className="rounded-2xl bg-white/80 p-4 text-sm font-semibold text-emerald-700 shadow">
+                {summaryT.averageDuration(computedSummary.averageDurationFormatted)}
+              </div>
+            )}
+            {summaryT?.bestDuration && computedSummary?.bestDurationFormatted && (
+              <div className="rounded-2xl bg-white/80 p-4 text-sm font-semibold text-emerald-700 shadow">
+                {summaryT.bestDuration(computedSummary.bestDurationFormatted)}
+              </div>
+            )}
             {summaryT?.lastUpdated && formattedLastSession && (
               <div className="rounded-2xl bg-white/80 p-4 text-sm font-semibold text-emerald-700 shadow">
                 {summaryT.lastUpdated(formattedLastSession)}
+              </div>
+            )}
+            {summaryT?.lastDuration && computedSummary?.lastDurationFormatted && (
+              <div className="rounded-2xl bg-white/80 p-4 text-sm font-semibold text-emerald-700 shadow">
+                {summaryT.lastDuration(computedSummary.lastDurationFormatted)}
               </div>
             )}
           </div>

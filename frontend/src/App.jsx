@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import OperationCard from "./components/OperationCard";
 import SettingsModal from "./components/SettingsModal";
@@ -10,6 +10,7 @@ import {
   getTranslations,
   translations,
 } from "./i18n";
+import { calculateAggregateStats, formatDuration } from "./utils/stats";
 
 const LANGUAGE_KEY = "mathcards_language";
 const STATS_KEY = "mathcards_stats";
@@ -45,8 +46,29 @@ export default function App() {
     return { sessions: [] };
   });
   const [statsErrorKey, setStatsErrorKey] = useState(null);
+  const sessionStartRef = useRef(null);
 
   const t = useMemo(() => getTranslations(language), [language]);
+  const durationFormatter = t?.common?.formatDuration;
+
+  const statsSummary = useMemo(() => {
+    const aggregate = calculateAggregateStats(stats?.sessions);
+    return {
+      ...aggregate,
+      averageDurationFormatted:
+        aggregate.averageDurationSeconds != null
+          ? formatDuration(aggregate.averageDurationSeconds, durationFormatter)
+          : null,
+      bestDurationFormatted:
+        aggregate.bestDurationSeconds != null
+          ? formatDuration(aggregate.bestDurationSeconds, durationFormatter)
+          : null,
+      lastDurationFormatted:
+        aggregate.lastDurationSeconds != null
+          ? formatDuration(aggregate.lastDurationSeconds, durationFormatter)
+          : null,
+    };
+  }, [durationFormatter, stats?.sessions]);
 
   const languageOptions = useMemo(
     () =>
@@ -75,6 +97,9 @@ export default function App() {
     const correctCount = sessionResults.filter((result) =>
       typeof result === "boolean" ? result : Boolean(result?.correct)
     ).length;
+    const duration = sessionStartRef.current
+      ? Date.now() - sessionStartRef.current
+      : null;
     const entry = {
       id: sessionId,
       timestamp: new Date().toISOString(),
@@ -86,6 +111,7 @@ export default function App() {
         ? Math.round((correctCount / sessionResults.length) * 100)
         : 0,
       results: sessionResults,
+      durationMs: typeof duration === "number" && duration >= 0 ? duration : null,
     };
 
     setStats((prev) => {
@@ -94,6 +120,7 @@ export default function App() {
         sessions: [...sessions, entry],
       };
     });
+    sessionStartRef.current = null;
   };
 
   const startSession = async (userSettings) => {
@@ -109,6 +136,7 @@ export default function App() {
       setFinished(false);
       setIndex(0);
       setLastResult(null);
+      sessionStartRef.current = Date.now();
       await getNext(res.data.session_id);
     } catch (err) {
       setError(t.errors.startSession);
@@ -185,6 +213,7 @@ export default function App() {
     setIndex(0);
     setError(null);
     setLastResult(null);
+    sessionStartRef.current = null;
   };
 
   const handleDownloadStats = () => {
@@ -247,6 +276,9 @@ export default function App() {
           />
         }
         translations={t}
+        stats={stats}
+        statsSummary={statsSummary}
+        language={language}
       />
     );
   if (finished)
@@ -263,6 +295,7 @@ export default function App() {
           />
         }
         stats={stats}
+        statsSummary={statsSummary}
         onDownloadStats={handleDownloadStats}
         onUploadStats={handleUploadStats}
         statsErrorKey={statsErrorKey}
