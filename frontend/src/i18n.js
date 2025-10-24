@@ -23,7 +23,7 @@ export const translations = {
       headerBadge: "¡Aprendamos jugando!",
       headerTitle: "Práctica de Sumas y Restas",
       headerDescription:
-        "Resuelve cada reto, marca si lo hiciste bien y gana estrellas mientras avanzas.",
+        "Resuelve cada reto escribiendo la respuesta correcta y gana estrellas mientras avanzas.",
     },
     settingsModal: {
       welcomeBadge: "¡Bienvenido a MathCards!",
@@ -54,10 +54,19 @@ export const translations = {
     operationCard: {
       challengeLabel: (index, total) => `Reto ${index} de ${total}`,
       starsEarned: (count) => `${count} estrellas`,
-      question: "¿Lo resolviste bien?",
+      question: "¿Cuál es el resultado?",
       progressLabel: (progress) => `Progreso: ${progress}%`,
-      correctButton: "¡Lo hice bien!",
-      incorrectButton: "Necesito practicar",
+      answerLabel: "Tu respuesta",
+      answerPlaceholder: "Escribe el resultado",
+      submitButton: "Comprobar respuesta",
+      errors: {
+        required: "Escribe tu respuesta antes de continuar.",
+        invalid: "Introduce solo números enteros.",
+      },
+      feedback: {
+        correct: "¡Excelente! Sigue así.",
+        incorrect: (expected) => `Casi. La respuesta correcta es ${expected}.`,
+      },
     },
     sessionSummary: {
       title: "¡Sesión completada! 🎉",
@@ -110,7 +119,7 @@ export const translations = {
       headerBadge: "Let's learn by playing!",
       headerTitle: "Addition & Subtraction Practice",
       headerDescription:
-        "Solve each challenge, mark whether you got it right, and earn stars along the way.",
+        "Solve each challenge by typing the correct answer and earn stars along the way.",
     },
     settingsModal: {
       welcomeBadge: "Welcome to MathCards!",
@@ -141,10 +150,19 @@ export const translations = {
     operationCard: {
       challengeLabel: (index, total) => `Challenge ${index} of ${total}`,
       starsEarned: (count) => `${count} stars`,
-      question: "Did you solve it correctly?",
+      question: "What is the result?",
       progressLabel: (progress) => `Progress: ${progress}%`,
-      correctButton: "I got it right!",
-      incorrectButton: "I need more practice",
+      answerLabel: "Your answer",
+      answerPlaceholder: "Type the result",
+      submitButton: "Check answer",
+      errors: {
+        required: "Please enter your answer before continuing.",
+        invalid: "Only whole numbers are allowed.",
+      },
+      feedback: {
+        correct: "Great job!",
+        incorrect: (expected) => `Almost! The correct answer is ${expected}.`,
+      },
     },
     sessionSummary: {
       title: "Session complete! 🎉",
@@ -197,7 +215,7 @@ export const translations = {
       headerBadge: "遊びながら学ぼう！",
       headerTitle: "たし算・ひき算の練習",
       headerDescription:
-        "チャレンジを解いて、正解したかどうかを記録しながら星を集めよう。",
+        "チャレンジに答えを書き込んで、正解すると星がもらえるよ。",
     },
     settingsModal: {
       welcomeBadge: "MathCardsへようこそ！",
@@ -228,10 +246,19 @@ export const translations = {
     operationCard: {
       challengeLabel: (index, total) => `チャレンジ ${index} / ${total}`,
       starsEarned: (count) => `スター ${count} 個`,
-      question: "正解できたかな？",
+      question: "答えはいくつかな？",
       progressLabel: (progress) => `進行状況: ${progress}%`,
-      correctButton: "できた！",
-      incorrectButton: "もう少し練習する",
+      answerLabel: "答え",
+      answerPlaceholder: "結果を入力しよう",
+      submitButton: "こたえを送る",
+      errors: {
+        required: "答えを入力してね。",
+        invalid: "数字だけを入力してね。",
+      },
+      feedback: {
+        correct: "よくできました！",
+        incorrect: (expected) => `おしい！ 正しい答えは ${expected} だよ。`,
+      },
     },
     sessionSummary: {
       title: "セッション完了！🎉",

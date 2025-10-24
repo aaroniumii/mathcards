@@ -1,63 +1,71 @@
 import random
+from typing import Dict, Iterable, List, Tuple
+
 
 def generate_number(digits: int) -> int:
     """Genera un número con la cantidad de cifras indicada."""
     if digits == 1:
         return random.randint(1, 9)
-    else:
-        return random.randint(10 ** (digits - 1), 10 ** digits - 1)
+    return random.randint(10 ** (digits - 1), 10**digits - 1)
+
+
+def _difficulty_stages(difficulty: int) -> List[Tuple[int, int]]:
+    """Devuelve las etapas de dificultad para una sesión."""
+
+    stages: Dict[int, Iterable[Tuple[int, int]]] = {
+        1: [(1, 1)],
+        2: [(1, 1), (2, 1)],
+        3: [(1, 1), (2, 1), (2, 2)],
+        4: [(2, 1), (2, 2), (3, 2)],
+        5: [(2, 2), (3, 2), (3, 3)],
+        6: [(3, 2), (3, 3), (4, 3)],
+    }
+
+    return list(stages.get(difficulty, stages[3]))
+
+
+def _expected_result(a: int, b: int, operator: str) -> int:
+    return a + b if operator == "+" else a - b
+
 
 def generate_operations(mode: str, difficulty: int, count: int):
-    """
-    Genera una lista de operaciones según el modo y dificultad.
+    """Genera una lista de operaciones según el modo y la dificultad.
 
-    Dificultad propuesta:
-    1 -> 1 cifra
-    2 -> 2 cifras (una de un dígito, otra de dos)
-    3 -> ambas de dos cifras
-    4 -> una de tres cifras, otra de dos
-    5 -> ambas de tres cifras
-    6 -> una de cuatro, otra de tres
+    Cada sesión avanza gradualmente por etapas, incrementando la cantidad de cifras
+    hasta alcanzar la dificultad seleccionada.
     """
+
+    stages = _difficulty_stages(difficulty)
     operations = []
-    for _ in range(count):
-        # Elegir tipo
+
+    for index in range(count):
+        # Elegir tipo de operación
         op_type = mode
         if mode == "mix":
             op_type = random.choice(["sum", "sub"])
 
-        # Determinar cifras
-        if difficulty == 1:
-            a = generate_number(1)
-            b = generate_number(1)
-        elif difficulty == 2:
-            a = generate_number(2)
-            b = generate_number(1)
-        elif difficulty == 3:
-            a = generate_number(2)
-            b = generate_number(2)
-        elif difficulty == 4:
-            a = generate_number(3)
-            b = generate_number(2)
-        elif difficulty == 5:
-            a = generate_number(3)
-            b = generate_number(3)
-        elif difficulty == 6:
-            a = generate_number(4)
-            b = generate_number(3)
-        else:
-            a = generate_number(2)
-            b = generate_number(2)
+        # Calcular etapa correspondiente (progresión gradual)
+        progress = (index + 1) / max(1, count)
+        stage_idx = min(len(stages) - 1, max(0, int(progress * len(stages)) - 1))
+        digits_a, digits_b = stages[stage_idx]
 
-        # Ajuste si es resta para evitar negativos
-        if op_type == "sub" and a < b:
+        a = generate_number(digits_a)
+        b = generate_number(digits_b)
+
+        operator = "+" if op_type == "sum" else "-"
+
+        # Ajuste si es resta para evitar resultados negativos
+        if operator == "-" and a < b:
             a, b = b, a
 
-        operations.append({
-            "a": a,
-            "b": b,
-            "operator": "+" if op_type == "sum" else "-"
-        })
+        operations.append(
+            {
+                "a": a,
+                "b": b,
+                "operator": operator,
+                "result": _expected_result(a, b, operator),
+            }
+        )
 
     return operations
 
